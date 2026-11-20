@@ -53,25 +53,96 @@
     }
   }
 
-  /* ---------- Scroll Progress & Header Elevation ---------- */
+  /* ---------- Scroll Progress, Header Elevation & Scroll Choreography ---------- */
   function initScrollEffects() {
     const bar = $("#scrollProgress");
     const header = $("#siteHeader");
-    const onScroll = () => {
+    const heroSection = $("#heroSection");
+    const heroCopy = $(".hero-copy");
+    const heroTiltCard = $("#heroTiltCard");
+    const craftA = $("#craftParallaxA");
+    const craftB = $("#craftParallaxB");
+    const craftSeal = $("#craftSeal");
+    const storyCrest = $("#storyCrestImg");
+    const stepsTimeline = $("#stepsTimeline");
+    const timelineFill = $("#timelineLine");
+    const stepCards = $$(".step-card");
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let rafPending = false;
+
+    const updateOnScroll = () => {
+      rafPending = false;
       const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const vh = window.innerHeight || 800;
+      const docHeight = document.documentElement.scrollHeight - vh;
       const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+
       if (bar) bar.style.width = `${pct}%`;
       if (header) header.classList.toggle("is-scrolled", scrollTop > 24);
+      if (reduceMotion) return;
+
+      // 1. Hero gentle scroll parallax (desktop only so mobile stays crisp)
+      if (heroSection && window.innerWidth > 920) {
+        const heroH = heroSection.offsetHeight || 700;
+        const progress = Math.min(1, Math.max(0, scrollTop / heroH));
+        if (heroCopy) {
+          heroCopy.style.transform = `translate3d(0, ${progress * -28}px, 0)`;
+        }
+        if (heroTiltCard) {
+          heroTiltCard.style.transform = `translate3d(0, ${progress * 26}px, 0)`;
+        }
+      } else if (heroCopy) {
+        heroCopy.style.transform = "";
+      }
+
+      // 2. Craftsmanship opposing collage parallax & rotating UAE seal
+      if (craftA && craftB) {
+        const rect = craftA.getBoundingClientRect();
+        const centerOffset = (rect.top + rect.height / 2 - vh / 2) / vh;
+        const clamped = Math.max(-1, Math.min(1, centerOffset));
+        craftA.style.transform = `translate3d(0, ${clamped * -18}px, 0)`;
+        craftB.style.transform = `translate3d(0, ${28 + clamped * 22}px, 0)`;
+        if (craftSeal) {
+          craftSeal.style.transform = `translate(-50%, -50%) rotate(${clamped * -16}deg)`;
+        }
+      }
+
+      // 3. Story banner crest gentle spin on scroll
+      if (storyCrest) {
+        const rect = storyCrest.getBoundingClientRect();
+        const p = Math.max(-1, Math.min(1, (rect.top - vh / 2) / vh));
+        storyCrest.style.transform = `rotate(${p * -14}deg) scale(${1 - Math.abs(p) * 0.05})`;
+      }
+
+      // 4. Order guide timeline vertical line draw & active step illumination
+      if (stepsTimeline && timelineFill) {
+        const rect = stepsTimeline.getBoundingClientRect();
+        const raw = (vh * 0.68 - rect.top) / Math.max(1, rect.height);
+        const fill = Math.max(0, Math.min(1, raw));
+        timelineFill.style.transform = `scaleY(${fill})`;
+        stepCards.forEach((card, i) => {
+          const threshold = (i + 0.15) / stepCards.length;
+          card.classList.toggle("is-lit", fill >= threshold);
+        });
+      }
     };
+
+    const onScroll = () => {
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(updateOnScroll);
+      }
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    updateOnScroll();
   }
 
   /* ---------- Intersection Observer Reveals ---------- */
   let revealObserver;
   function observeReveals() {
-    const targets = $$(".reveal:not(.is-visible)");
+    const targets = $$(".reveal:not(.is-visible), .reveal-left:not(.is-visible), .reveal-right:not(.is-visible), .reveal-scale:not(.is-visible), .reveal-curtain:not(.is-visible)");
     if (!("IntersectionObserver" in window)) {
       targets.forEach((el) => el.classList.add("is-visible"));
       return;
@@ -736,18 +807,23 @@
       };
 
       let createdOrder = null;
-      try {
-        const res = await fetch("api/orders.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.ok && data.order) createdOrder = data.order;
+      for (const endpoint of ["/api/orders", "api/orders.php"]) {
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+            const data = await res.json();
+            if (data?.ok && data.order) {
+              createdOrder = data.order;
+              break;
+            }
+          }
+        } catch {
+          // Try next endpoint or localStorage fallback
         }
-      } catch {
-        // Fallback when opened without PHP
       }
 
       if (!createdOrder) {
@@ -1031,13 +1107,21 @@
       const id = $("#trackOrderIdInput").value.trim().toUpperCase();
       let found = state.orders.find((o) => o.orderId.toUpperCase() === id);
       if (!found) {
-        try {
-          const res = await fetch(`api/orders.php?id=${encodeURIComponent(id)}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data?.ok) found = data.order;
-          }
-        } catch { /* ignore */ }
+        for (const endpoint of [
+          `/api/orders?id=${encodeURIComponent(id)}`,
+          `api/orders.php?id=${encodeURIComponent(id)}`
+        ]) {
+          try {
+            const res = await fetch(endpoint);
+            if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+              const data = await res.json();
+              if (data?.ok) {
+                found = data.order;
+                break;
+              }
+            }
+          } catch { /* try next */ }
+        }
       }
       renderOrderTrackResult(found);
     });

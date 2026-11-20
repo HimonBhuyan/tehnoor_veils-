@@ -199,7 +199,7 @@
         </div>
 
         <div class="category-grid">
-          <button type="button" class="category-card reveal" data-cat-jump="farasha">
+          <button type="button" class="category-card reveal-scale" style="transition-delay:0.04s" data-cat-jump="farasha">
             <img src="assets/images/abaya-farasha-mocha.jpg" alt="Farasha Butterfly Abayas" loading="lazy" />
             <div class="category-card-content">
               <span class="category-card-tag">Crystal Lace</span>
@@ -208,7 +208,7 @@
             </div>
           </button>
 
-          <button type="button" class="category-card reveal" data-cat-jump="korean-nida">
+          <button type="button" class="category-card reveal-scale" style="transition-delay:0.1s" data-cat-jump="korean-nida">
             <img src="assets/images/abaya-korean-nida-ivory.jpg" alt="Premium Korean Nida Abayas" loading="lazy" />
             <div class="category-card-content">
               <span class="category-card-tag">UAE Luxury</span>
@@ -217,7 +217,7 @@
             </div>
           </button>
 
-          <button type="button" class="category-card reveal" data-cat-jump="embroidered">
+          <button type="button" class="category-card reveal-scale" style="transition-delay:0.16s" data-cat-jump="embroidered">
             <img src="assets/images/abaya-sage-embroidered.jpg" alt="Embroidered Scalloped Abayas" loading="lazy" />
             <div class="category-card-content">
               <span class="category-card-tag">Scalloped Detail</span>
@@ -226,7 +226,7 @@
             </div>
           </button>
 
-          <button type="button" class="category-card reveal" data-cat-jump="classic">
+          <button type="button" class="category-card reveal-scale" style="transition-delay:0.22s" data-cat-jump="classic">
             <img src="assets/images/abaya-sana-khan-black.jpg" alt="Sana Khan Classic Black Abayas" loading="lazy" />
             <div class="category-card-content">
               <span class="category-card-tag">Timeless Cut</span>
@@ -235,7 +235,7 @@
             </div>
           </button>
 
-          <button type="button" class="category-card reveal" data-cat-jump="stoles">
+          <button type="button" class="category-card reveal-scale" style="transition-delay:0.28s" data-cat-jump="stoles">
             <img src="assets/images/stole-satin-collection.jpg" alt="Textured Satin Luxury Stoles" loading="lazy" />
             <div class="category-card-content">
               <span class="category-card-tag">Finishing Touch</span>
@@ -292,20 +292,20 @@
     <!-- Craftsmanship & Brand Promise -->
     <section class="section section-sand" id="craft">
       <div class="container craft-grid">
-        <div class="craft-collage reveal">
-          <div class="craft-img-box">
+        <div class="craft-collage reveal-left">
+          <div class="craft-img-box reveal-curtain" id="craftParallaxA">
             <img src="assets/images/abaya-burgundy-floral.jpg" alt="Burgundy Blossom Embroidered Abaya Craftsmanship" loading="lazy" />
           </div>
-          <div class="craft-img-box craft-img-box--offset">
+          <div class="craft-img-box craft-img-box--offset reveal-curtain" id="craftParallaxB">
             <img src="assets/images/abaya-ice-blue-mist.jpg" alt="Summer Mist Korean Nida Detail" loading="lazy" />
           </div>
-          <div class="craft-seal">
+          <div class="craft-seal" id="craftSeal">
             <strong>UAE</strong>
             <span>Imported Craft</span>
           </div>
         </div>
 
-        <div class="reveal">
+        <div class="reveal-right">
           <span class="section-kicker">What Makes Us Special</span>
           <h2 class="section-title">Real Quality, Real Abayas. Real For You.</h2>
           <p class="section-desc" style="margin-top:0.8rem;">
@@ -313,28 +313,28 @@
           </p>
 
           <div class="pillars-list">
-            <div class="pillar-card">
-              <div class="pillar-icon">🇦🇪</div>
+            <div class="pillar-card reveal" style="transition-delay:0.06s">
+              <div class="pillar-icon">✦</div>
               <div>
                 <h4>Premium Imported Korean Nida</h4>
                 <p>Breathable, cool-to-touch, non-clingy weave sourced directly from trusted UAE ateliers.</p>
               </div>
             </div>
-            <div class="pillar-card">
+            <div class="pillar-card reveal" style="transition-delay:0.14s">
               <div class="pillar-icon">💎</div>
               <div>
                 <h4>Hand-Applied Stone &amp; Scallop Work</h4>
                 <p>Delicate crystal lace and crisp botanical embroidery checked individually before dispatch.</p>
               </div>
             </div>
-            <div class="pillar-card">
+            <div class="pillar-card reveal" style="transition-delay:0.22s">
               <div class="pillar-icon">🧕</div>
               <div>
                 <h4>Complete Ready-to-Wear Sets</h4>
                 <p>Our signature abayas include matching chiffon stoles so you never hunt for the exact shade.</p>
               </div>
             </div>
-            <div class="pillar-card">
+            <div class="pillar-card reveal" style="transition-delay:0.3s">
               <div class="pillar-icon">🚚</div>
               <div>
                 <h4>Express PAN India Delivery</h4>
@@ -358,36 +358,39 @@
         </div>
 
         <div class="guide-layout">
-          <div class="steps-timeline reveal">
-            <div class="step-card">
+          <div class="steps-timeline" id="stepsTimeline">
+            <div class="timeline-track-line" aria-hidden="true">
+              <div class="timeline-track-fill" id="timelineLine"></div>
+            </div>
+            <div class="step-card reveal-left" style="transition-delay:0.05s">
               <div class="step-num">01</div>
               <div>
                 <h4>Choose Your Abaya</h4>
                 <p>Browse Farasha, Korean Nida, Embroidered &amp; Sana Khan classics and pick your favourite shade.</p>
               </div>
             </div>
-            <div class="step-card">
+            <div class="step-card reveal-left" style="transition-delay:0.12s">
               <div class="step-num">02</div>
               <div>
                 <h4>Add to Bag or Send Screenshot</h4>
                 <p>Use instant bag checkout here, or click "Order via Instagram DM" inside any product card.</p>
               </div>
             </div>
-            <div class="step-card">
+            <div class="step-card reveal-left" style="transition-delay:0.19s">
               <div class="step-num">03</div>
               <div>
                 <h4>Confirm Your Abaya Length (52–58)</h4>
                 <p>Use our smart Height-to-Length studio on the right to pick your ideal floor-skimming drape.</p>
               </div>
             </div>
-            <div class="step-card">
+            <div class="step-card reveal-left" style="transition-delay:0.26s">
               <div class="step-num">04</div>
               <div>
                 <h4>Share Delivery Details &amp; Pincode</h4>
                 <p>Enter your Name, Mobile, Address &amp; 6-digit Indian pincode for instant ETA &amp; COD verification.</p>
               </div>
             </div>
-            <div class="step-card">
+            <div class="step-card reveal-left" style="transition-delay:0.33s">
               <div class="step-num">05</div>
               <div>
                 <h4>Place Order &amp; Track Live</h4>
@@ -396,7 +399,7 @@
             </div>
           </div>
 
-          <aside class="size-studio-card reveal" aria-label="Interactive Abaya Size Finder">
+          <aside class="size-studio-card reveal-right" aria-label="Interactive Abaya Size Finder">
             <span class="section-kicker" style="color:var(--gold-bright);">Interactive Fit Studio</span>
             <h3>Find Your Perfect Abaya Size</h3>
             <p>Select your height and footwear preference — we calculate the exact UAE length in inches.</p>
@@ -484,7 +487,7 @@
             </form>
           </div>
           <div style="text-align:center;">
-            <img src="assets/images/logo.jpg" alt="TehNoor Veils Floral Crest" style="width:210px;height:210px;border-radius:50%;object-fit:cover;margin-inline:auto;border:3px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,0.4);" />
+            <img src="assets/images/logo.jpg" id="storyCrestImg" alt="TehNoor Veils Floral Crest" style="width:210px;height:210px;border-radius:50%;object-fit:cover;margin-inline:auto;border:3px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,0.4);will-change:transform;" />
           </div>
         </div>
       </div>
