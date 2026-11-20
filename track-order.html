@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Your Parcel — TehNoor Veils</title>
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="track">
+  <div id="siteHeaderShell"></div>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Track Order</span></div>
+        <h1 class="page-hero-title">Track Your PAN India Parcel</h1>
+        <p class="page-hero-sub">Enter your Order Tracking ID (e.g. <code>TV-2026-...</code>) to view live packing and dispatch milestones.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" style="max-width:680px;">
+        <div class="pdp-card reveal">
+          <form id="pageTrackOrderForm" style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+            <input type="text" id="pageTrackOrderIdInput" placeholder="Enter Order ID (e.g. TV-2026-...)" required style="flex:1;min-width:220px;padding:0.85rem 1.15rem;border-radius:999px;border:1px solid var(--border-gold);background:var(--bg-ivory);" />
+            <button type="submit" class="btn btn-primary btn-sm">Track Parcel →</button>
+          </form>
+          <div id="pageRecentOrderChips" style="display:flex;flex-wrap:wrap;gap:0.45rem;"></div>
+          <div id="pageTrackOrderResult"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="siteFooterShell"></div>
+
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

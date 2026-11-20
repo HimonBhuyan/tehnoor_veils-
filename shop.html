@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop All Abayas &amp; Stoles — TehNoor Veils</title>
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="shop">
+  <div id="siteHeaderShell"></div>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumb"><a href="index.html">Home</a> <span>/</span> <span>Shop Boutique</span></div>
+        <h1 class="page-hero-title">Signature UAE Boutique</h1>
+        <p class="page-hero-sub">Browse our ready-to-dispatch Farasha butterfly cuts, pure Korean Nida open abayas, floral scalloped sets, and textured satin stoles.</p>
+      </div>
+    </section>
+
+    <section class="section" id="shop">
+      <div class="container">
+        <div class="shop-controls reveal">
+          <div class="filter-pills" id="categoryFilterPills" role="tablist" aria-label="Filter by category">
+            <button type="button" class="filter-pill is-active" data-filter="all">All Pieces</button>
+            <button type="button" class="filter-pill" data-filter="farasha">Farasha</button>
+            <button type="button" class="filter-pill" data-filter="korean-nida">Korean Nida</button>
+            <button type="button" class="filter-pill" data-filter="embroidered">Embroidered</button>
+            <button type="button" class="filter-pill" data-filter="classic">Classic Black</button>
+            <button type="button" class="filter-pill" data-filter="stoles">Satin Stoles</button>
+          </div>
+
+          <div class="shop-sort-group">
+            <div class="shop-search-inline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input type="search" id="inlineSearchInput" placeholder="Search Farasha, Sage, Nida..." aria-label="Filter products by keyword" />
+            </div>
+
+            <select id="sortSelect" class="select-luxury" aria-label="Sort products">
+              <option value="featured">Sort: Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="siteFooterShell"></div>
+
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

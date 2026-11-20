@@ -279,9 +279,90 @@
     return list;
   }
 
+  function buildProductCardHtml(p, idx) {
+    const activeColorIdx = state.selectedSwatches[p.id] || 0;
+    const activeColor = p.colors[activeColorIdx] || p.colors[0];
+    const isWished = state.wishlist.includes(p.id);
+    const quickSizes = p.sizes
+      .map(
+        (sz) =>
+          `<button type="button" class="quick-size-btn" data-quick-add="${p.id}" data-size="${sz}">${
+            sz.length > 6 ? "Add Free Size" : sz
+          }</button>`
+      )
+      .join("");
+
+    return `
+      <article class="product-card reveal" style="transition-delay:${Math.min(idx * 0.05, 0.3)}s" data-product-id="${p.id}">
+        <div class="product-media" data-open-qv="${p.id}">
+          <img src="${activeColor.image}" alt="${p.name} in ${activeColor.name}" loading="lazy" />
+          <div class="product-sheen"></div>
+          <div class="product-badges">
+            <span class="badge-pill badge-pill--${p.badgeTone}">${p.badge}</span>
+          </div>
+          <button type="button" class="wishlist-btn ${isWished ? "is-active" : ""}" data-toggle-wish="${p.id}" aria-label="Save ${p.name} to wishlist">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 20.5s-7-4.5-9.2-8.7C1.1 8.5 3 5 6.6 5c2 0 3.4 1.1 4.4 2.4C12 6.1 13.4 5 15.4 5 19 5 20.9 8.5 19.2 11.8 17 16 12 20.5 12 20.5Z"/></svg>
+          </button>
+          <div class="quick-add-dock" onclick="event.stopPropagation()">
+            <span class="quick-add-label">Quick Add Size</span>
+            <div class="quick-size-row">${quickSizes}</div>
+          </div>
+        </div>
+
+        <div class="product-body">
+          <div class="product-meta-top">
+            <span>${p.fabric}</span>
+            <span class="product-rating">★ ${p.rating.toFixed(1)} (${p.reviewCount})</span>
+          </div>
+          <h3 class="product-title"><a href="product.html?id=${encodeURIComponent(p.id)}">${p.name}</a></h3>
+          <p class="product-subtitle">${p.subtitle}</p>
+
+          <div class="product-swatches">
+            ${p.colors
+              .map(
+                (c, cIdx) => `
+              <button type="button"
+                class="swatch-dot ${cIdx === activeColorIdx ? "is-active" : ""}"
+                style="background:${c.hex}"
+                title="${c.name}"
+                aria-label="Select ${c.name}"
+                data-swatch-prod="${p.id}"
+                data-swatch-idx="${cIdx}">
+              </button>`
+              )
+              .join("")}
+            <span style="font-size:0.74rem;color:var(--text-muted);margin-left:0.25rem;">${activeColor.name}</span>
+          </div>
+
+          <div class="product-footer">
+            <div class="price-wrap">
+              <span class="price-current">${formatINR(p.price)}</span>
+              ${p.compareAt ? `<span class="price-compare">${formatINR(p.compareAt)}</span>` : ""}
+            </div>
+            <button type="button" class="card-action-link" data-open-qv="${p.id}">Quick View</button>
+          </div>
+        </div>
+      </article>`;
+  }
+
   function renderProducts() {
+    const featuredGrid = $("#featuredProductGrid");
+    if (featuredGrid) {
+      featuredGrid.innerHTML = products.slice(0, 4).map((p, idx) => buildProductCardHtml(p, idx)).join("");
+    }
+
+    const relatedGrid = $("#relatedProductGrid");
+    if (relatedGrid) {
+      const currentId = new URLSearchParams(window.location.search).get("id");
+      const related = products.filter((p) => p.id !== currentId).slice(0, 4);
+      relatedGrid.innerHTML = related.map((p, idx) => buildProductCardHtml(p, idx)).join("");
+    }
+
     const grid = $("#productGrid");
-    if (!grid) return;
+    if (!grid) {
+      observeReveals();
+      return;
+    }
     const list = getFilteredProducts();
 
     if (!list.length) {
@@ -294,81 +375,14 @@
       $("#resetFiltersBtn")?.addEventListener("click", () => {
         state.filter = "all";
         state.search = "";
-        $("#inlineSearchInput").value = "";
+        if ($("#inlineSearchInput")) $("#inlineSearchInput").value = "";
         syncFilterPills();
         renderProducts();
       });
       return;
     }
 
-    grid.innerHTML = list
-      .map((p, idx) => {
-        const activeColorIdx = state.selectedSwatches[p.id] || 0;
-        const activeColor = p.colors[activeColorIdx] || p.colors[0];
-        const isWished = state.wishlist.includes(p.id);
-        const quickSizes = p.sizes
-          .map(
-            (sz) =>
-              `<button type="button" class="quick-size-btn" data-quick-add="${p.id}" data-size="${sz}">${
-                sz.length > 6 ? "Add Free Size" : sz
-              }</button>`
-          )
-          .join("");
-
-        return `
-          <article class="product-card reveal" style="transition-delay:${Math.min(idx * 0.05, 0.3)}s" data-product-id="${p.id}">
-            <div class="product-media" data-open-qv="${p.id}">
-              <img src="${activeColor.image}" alt="${p.name} in ${activeColor.name}" loading="lazy" />
-              <div class="product-sheen"></div>
-              <div class="product-badges">
-                <span class="badge-pill badge-pill--${p.badgeTone}">${p.badge}</span>
-              </div>
-              <button type="button" class="wishlist-btn ${isWished ? "is-active" : ""}" data-toggle-wish="${p.id}" aria-label="Save ${p.name} to wishlist">
-                <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 20.5s-7-4.5-9.2-8.7C1.1 8.5 3 5 6.6 5c2 0 3.4 1.1 4.4 2.4C12 6.1 13.4 5 15.4 5 19 5 20.9 8.5 19.2 11.8 17 16 12 20.5 12 20.5Z"/></svg>
-              </button>
-              <div class="quick-add-dock" onclick="event.stopPropagation()">
-                <span class="quick-add-label">Quick Add Size</span>
-                <div class="quick-size-row">${quickSizes}</div>
-              </div>
-            </div>
-
-            <div class="product-body">
-              <div class="product-meta-top">
-                <span>${p.fabric}</span>
-                <span class="product-rating">★ ${p.rating.toFixed(1)} (${p.reviewCount})</span>
-              </div>
-              <h3 class="product-title" data-open-qv="${p.id}">${p.name}</h3>
-              <p class="product-subtitle">${p.subtitle}</p>
-
-              <div class="product-swatches">
-                ${p.colors
-                  .map(
-                    (c, cIdx) => `
-                  <button type="button"
-                    class="swatch-dot ${cIdx === activeColorIdx ? "is-active" : ""}"
-                    style="background:${c.hex}"
-                    title="${c.name}"
-                    aria-label="Select ${c.name}"
-                    data-swatch-prod="${p.id}"
-                    data-swatch-idx="${cIdx}">
-                  </button>`
-                  )
-                  .join("")}
-                <span style="font-size:0.74rem;color:var(--text-muted);margin-left:0.25rem;">${activeColor.name}</span>
-              </div>
-
-              <div class="product-footer">
-                <div class="price-wrap">
-                  <span class="price-current">${formatINR(p.price)}</span>
-                  ${p.compareAt ? `<span class="price-compare">${formatINR(p.compareAt)}</span>` : ""}
-                </div>
-                <button type="button" class="card-action-link" data-open-qv="${p.id}">Quick View</button>
-              </div>
-            </div>
-          </article>`;
-      })
-      .join("");
-
+    grid.innerHTML = list.map((p, idx) => buildProductCardHtml(p, idx)).join("");
     observeReveals();
   }
 
@@ -970,10 +984,15 @@
     // Category showcase cards & footer links
     $$("[data-cat-jump]").forEach((card) => {
       card.addEventListener("click", () => {
-        state.filter = card.dataset.catJump;
-        syncFilterPills();
-        renderProducts();
-        $("#shop")?.scrollIntoView({ behavior: "smooth" });
+        const cat = card.dataset.catJump;
+        if ($("#productGrid")) {
+          state.filter = cat;
+          syncFilterPills();
+          renderProducts();
+          $("#shop")?.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = `shop.html?category=${encodeURIComponent(cat)}`;
+        }
       });
     });
 
@@ -1162,10 +1181,211 @@
     });
   }
 
+  /* ---------- Dedicated Product Detail Page (product.html) ---------- */
+  function renderProductDetailPage() {
+    const root = $("#productDetailRoot");
+    if (!root) return;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const p = products.find((item) => item.id === id) || products[0];
+    if (!p) return;
+
+    document.title = `${p.name} — TehNoor Veils`;
+    const bcName = $("#pdpBreadcrumbName");
+    if (bcName) bcName.textContent = p.name;
+
+    let selectedColorIdx = state.selectedSwatches[p.id] || 0;
+    let selectedSize = p.defaultSize;
+    let qty = 1;
+
+    const draw = () => {
+      const col = p.colors[selectedColorIdx] || p.colors[0];
+      const isWished = state.wishlist.includes(p.id);
+      root.innerHTML = `
+        <div class="pdp-grid">
+          <div class="pdp-media-frame reveal-curtain is-visible">
+            <img src="${col.image}" alt="${p.name} — ${col.name}" />
+          </div>
+          <div class="pdp-card reveal-right is-visible">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="section-kicker" style="margin:0;">${p.origin} • ${p.fabric}</span>
+              <span class="badge-pill badge-pill--${p.badgeTone}">${p.badge}</span>
+            </div>
+            <h1 style="font-family:var(--font-serif);font-size:clamp(2rem,3.5vw,2.9rem);line-height:1.08;">${p.name}</h1>
+            <p style="color:var(--text-muted);font-size:0.95rem;">${p.subtitle}</p>
+            <div style="display:flex;align-items:center;gap:0.9rem;">
+              <strong style="font-size:1.75rem;color:var(--sage-deep);">${formatINR(p.price)}</strong>
+              ${p.compareAt ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:1.05rem;">${formatINR(p.compareAt)}</span>` : ""}
+              <span style="color:var(--gold-deep);font-weight:700;font-size:0.9rem;">★ ${p.rating.toFixed(1)} (${p.reviewCount} reviews)</span>
+            </div>
+            <p style="color:var(--text-body);line-height:1.7;">${p.description}</p>
+            <ul style="padding-left:1.15rem;color:var(--text-muted);display:grid;gap:0.35rem;font-size:0.9rem;">
+              ${p.highlights.map((h) => `<li>${h}</li>`).join("")}
+            </ul>
+
+            <div>
+              <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.45rem;">Shade: <span style="color:var(--sage-deep);">${col.name}</span></div>
+              <div class="product-swatches" style="margin-bottom:0;">
+                ${p.colors
+                  .map((c, idx) => `<button type="button" class="swatch-dot ${idx === selectedColorIdx ? "is-active" : ""}" style="background:${c.hex}" data-pdp-color="${idx}" title="${c.name}"></button>`)
+                  .join("")}
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;">
+                <span style="font-size:0.82rem;font-weight:700;">Select Length / Size:</span>
+                <a href="order-guide.html" style="font-size:0.78rem;color:var(--sage-deep);text-decoration:underline;">Size Finder (52–58) →</a>
+              </div>
+              <div class="size-pills">
+                ${p.sizes.map((s) => `<button type="button" class="size-pill ${s === selectedSize ? "is-active" : ""}" data-pdp-size="${s}">${s}</button>`).join("")}
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;padding-top:0.5rem;">
+              <div class="cart-qty-box">
+                <button type="button" id="pdpQtyDec">−</button>
+                <span>${qty}</span>
+                <button type="button" id="pdpQtyInc">+</button>
+              </div>
+              <button type="button" class="btn btn-primary" id="pdpAddBtn" style="flex:1;min-width:190px;">Add to Bag — ${formatINR(p.price * qty)}</button>
+              <button type="button" class="btn btn-outline" id="pdpWishBtn">${isWished ? "♥ Saved" : "♡ Save"}</button>
+            </div>
+
+            <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+              <button type="button" class="btn btn-gold btn-sm" id="pdpBuyNowBtn" style="flex:1;">Instant Buy &amp; Checkout →</button>
+              <button type="button" class="btn btn-outline btn-sm" id="pdpDmBtn">📲 Copy Instagram DM Order</button>
+            </div>
+          </div>
+        </div>`;
+
+      $$("[data-pdp-color]", root).forEach((b) =>
+        b.addEventListener("click", () => {
+          selectedColorIdx = Number(b.dataset.pdpColor);
+          state.selectedSwatches[p.id] = selectedColorIdx;
+          draw();
+        })
+      );
+      $$("[data-pdp-size]", root).forEach((b) =>
+        b.addEventListener("click", () => {
+          selectedSize = b.dataset.pdpSize;
+          draw();
+        })
+      );
+      $("#pdpQtyDec", root)?.addEventListener("click", () => { if (qty > 1) { qty--; draw(); } });
+      $("#pdpQtyInc", root)?.addEventListener("click", () => { qty++; draw(); });
+      $("#pdpAddBtn", root)?.addEventListener("click", () => {
+        addToCart(p.id, selectedSize, p.colors[selectedColorIdx].name, qty);
+        openOverlay($("#cartDrawer"));
+      });
+      $("#pdpBuyNowBtn", root)?.addEventListener("click", () => {
+        addToCart(p.id, selectedSize, p.colors[selectedColorIdx].name, qty);
+        renderCart();
+        openOverlay($("#checkoutModal"));
+      });
+      $("#pdpWishBtn", root)?.addEventListener("click", () => {
+        toggleWishlist(p.id);
+        draw();
+      });
+      $("#pdpDmBtn", root)?.addEventListener("click", async () => {
+        const msg = `Assalamualaikum TehNoor Veils! I'd like to order:\n• Piece: ${p.name}\n• Shade: ${p.colors[selectedColorIdx].name}\n• Size: ${selectedSize}\n• Qty: ${qty}\n• Total: ${formatINR(p.price * qty)}`;
+        try {
+          await navigator.clipboard.writeText(msg);
+          showToast("Order message copied! Paste in @tehnoor_veils DM", "📲");
+        } catch {
+          showToast("Ready for DM: " + p.name, "📲");
+        }
+      });
+    };
+    draw();
+  }
+
+  /* ---------- Standalone Track Page, Pincode Checker & Inline Reviews ---------- */
+  function initPageSpecificWidgets() {
+    const pageTrackForm = $("#pageTrackOrderForm");
+    if (pageTrackForm) {
+      const chips = $("#pageRecentOrderChips");
+      const out = $("#pageTrackOrderResult");
+      const showTrack = (order) => {
+        if (!out) return;
+        out.innerHTML = order
+          ? `<div style="background:var(--bg-card);border:1px solid var(--border-gold);border-radius:16px;padding:1.4rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
+                <strong style="font-family:var(--font-serif);font-size:1.45rem;">${order.orderId}</strong>
+                <span class="badge-pill badge-pill--sage">${order.status || "Confirmed"}</span>
+              </div>
+              <div style="display:grid;gap:0.65rem;font-size:0.9rem;">
+                <div>✅ <strong>Order Confirmed</strong> — Verified for ${order.customer?.name || "Customer"}</div>
+                <div>🎀 <strong>Quality Check &amp; Gift Packing</strong> — Ribbon-wrapped with Thank-You card</div>
+                <div>🚚 <strong>PAN India Courier Transit</strong> — Destination: ${order.customer?.city || ""} (${order.customer?.pincode || ""})</div>
+                <div style="opacity:0.65;">🏠 <strong>Doorstep Delivery</strong> — Est. 3–5 business days</div>
+              </div>
+            </div>`
+          : `<p style="color:var(--burgundy);">No order found with that ID. Place a quick test order in Checkout or select a recent order above.</p>`;
+      };
+
+      if (chips) {
+        chips.innerHTML = state.orders.slice(0, 4).map((o) => `<button type="button" class="filter-pill" data-page-pick="${o.orderId}">${o.orderId}</button>`).join("");
+        $$("[data-page-pick]", chips).forEach((b) =>
+          b.addEventListener("click", () => {
+            $("#pageTrackOrderIdInput").value = b.dataset.pagePick;
+            showTrack(state.orders.find((o) => o.orderId === b.dataset.pagePick));
+          })
+        );
+      }
+      pageTrackForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = $("#pageTrackOrderIdInput").value.trim().toUpperCase();
+        let found = state.orders.find((o) => o.orderId.toUpperCase() === id);
+        if (!found) {
+          for (const ep of [`/api/orders?id=${encodeURIComponent(id)}`, `api/orders.php?id=${encodeURIComponent(id)}`]) {
+            try {
+              const r = await fetch(ep);
+              if (r.ok && (r.headers.get("content-type") || "").includes("application/json")) {
+                const d = await r.json();
+                if (d?.ok) { found = d.order; break; }
+              }
+            } catch {}
+          }
+        }
+        showTrack(found);
+      });
+    }
+
+    const pinBtn = $("#checkStandalonePinBtn");
+    if (pinBtn) {
+      pinBtn.addEventListener("click", () => {
+        const val = ($("#standalonePinInput").value || "").replace(/\D/g, "");
+        const msg = $("#standalonePinResult");
+        if (val.length !== 6) {
+          msg.textContent = "Please enter a valid 6-digit Indian pincode.";
+          msg.style.color = "var(--burgundy)";
+          return;
+        }
+        const metro = /^[1456]/.test(val);
+        msg.textContent = metro
+          ? `✓ Pincode ${val}: Express PAN India Delivery in 3–4 business days • COD & Free Shipping above ₹2,499`
+          : `✓ Pincode ${val}: PAN India Delivery in 4–6 business days • COD Available`;
+        msg.style.color = "var(--sage-deep)";
+      });
+    }
+  }
+
   /* ---------- Boot ---------- */
   document.addEventListener("DOMContentLoaded", () => {
     const yr = $("#yearNow");
     if (yr) yr.textContent = new Date().getFullYear();
+
+    const params = new URLSearchParams(window.location.search);
+    const urlCat = params.get("category");
+    const urlQ = params.get("q");
+    if (urlCat && ["all", "farasha", "korean-nida", "embroidered", "classic", "stoles"].includes(urlCat)) {
+      state.filter = urlCat;
+    }
+    if (urlQ) {
+      state.search = urlQ;
+      if ($("#inlineSearchInput")) $("#inlineSearchInput").value = urlQ;
+    }
 
     initPreloader();
     initScrollEffects();
@@ -1173,9 +1393,12 @@
     initPointerMicroInteractions();
     initSizeStudio();
     initCheckoutAndTracking();
+    initPageSpecificWidgets();
     bindEvents();
+    syncFilterPills();
 
     renderProducts();
+    renderProductDetailPage();
     renderReviews();
     renderCart();
     renderWishlist();
